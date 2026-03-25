@@ -39,7 +39,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # 2. Train Model
 # Note: To "fail" the test, you can set max_iter=1 or a very bad learning rate.
-model = SGDClassifier(max_iter=1000, tol=1e-3)
+model = SGDClassifier(
+    loss='log_loss', 
+    learning_rate='constant', 
+    eta0=0.01, 
+    max_iter=2000, 
+    random_state=42
+)
 model.fit(X_train, y_train)
 
 # 3. Calculate Accuracy
