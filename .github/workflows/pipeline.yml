@@ -6,7 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - setup-python: {python-version: '3.10'}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
       - name: Install Dependencies
         run: pip install pandas scikit-learn
       - name: Train Model
@@ -31,4 +33,4 @@ jobs:
       - name: Check Threshold
         run: python check_threshold.py
       - name: Mock Deploy
-        run: echo "Deploying model from Run: $(cat model_info.txt)"
+        run: echo "Deploying model from Run ID"
