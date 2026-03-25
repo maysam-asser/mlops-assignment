@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          lfs: true  # Important for DVC-tracked files
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -21,9 +23,23 @@ jobs:
           pip install -r requirements.txt 
           pip install dvc
 
+      - name: Configure DVC Remote
+        # Configure DVC remote storage (adjust based on your setup)
+        run: |
+          dvc remote default origin
+          # If using DagsHub, you might need:
+          # dvc remote modify origin url https://dagshub.com/your-username/your-repo.git
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
+
       - name: Pull Data
-        # Requirement: Uses dvc pull
-        run: dvc pull 
+        # Uses dvc pull with authentication
+        run: |
+          dvc pull --force
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  # If using S3
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # If using S3
 
       - name: Train and Observe
         # Logs to MLflow Tracking Server using a secret
@@ -40,6 +56,7 @@ jobs:
           path: |
             model_info.txt
             accuracy_result.txt
+          retention-days: 30  # Optional: specify how long to keep artifacts
 
   deploy:
     needs: validate
@@ -61,6 +78,11 @@ jobs:
         # Run Mock Build and Docker Build
         if: success()
         run: |
-          RUN_ID=$(cat model_info.txt)
-          echo "Building Docker image for Run ID: $RUN_ID"
-          docker build --build-arg RUN_ID=$RUN_ID -t ml-model-service:latest .
+          if [ -f model_info.txt ]; then
+            RUN_ID=$(cat model_info.txt)
+            echo "Building Docker image for Run ID: $RUN_ID"
+            docker build --build-arg RUN_ID=$RUN_ID -t ml-model-service:latest .
+          else
+            echo "Error: model_info.txt not found"
+            exit 1
+          fi
