@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          lfs: true  # Important for DVC-tracked files
+          lfs: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -23,40 +23,48 @@ jobs:
           pip install -r requirements.txt 
           pip install dvc
 
-      - name: Configure DVC Remote
-        # Configure DVC remote storage (adjust based on your setup)
+      - name: Configure DVC for DagsHub
         run: |
-          dvc remote default origin
-          # If using DagsHub, you might need:
-          # dvc remote modify origin url https://dagshub.com/your-username/your-repo.git
-        env:
-          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
+          # Configure DVC remote for DagsHub (if not already in .dvc/config)
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          # Set up DVC remote using the repository URL
+          dvc remote add origin https://dagshub.com/${{ github.repository }}.dvc 2>/dev/null || true
+          dvc remote default origin 2>/dev/null || true
+          
+          # Set authentication for the pull step
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user ${{ github.actor }}
+          dvc remote modify origin --local password ${{ secrets.DAGSHUB_PAT }}
+          
+          # Verify configuration
+          echo "DVC remotes configured:"
+          dvc remote list
 
       - name: Pull Data
-        # Uses dvc pull with authentication
         run: |
-          dvc pull --force
-        env:
-          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  # If using S3
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # If using S3
+          # Pull DVC-tracked data
+          dvc pull
+          
+          # List pulled files for debugging
+          echo "Files after dvc pull:"
+          ls -la
 
       - name: Train and Observe
-        # Logs to MLflow Tracking Server using a secret
         run: python train.py
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
 
       - name: Persist Artifacts
-        # Save model_info.txt and accuracy_result.txt
         uses: actions/upload-artifact@v4
         with:
           name: model_metadata
           path: |
             model_info.txt
             accuracy_result.txt
-          retention-days: 30  # Optional: specify how long to keep artifacts
+          retention-days: 30
 
   deploy:
     needs: validate
@@ -71,11 +79,9 @@ jobs:
           name: model_metadata
 
       - name: Check Threshold Logic
-        # Run check_threshold.py (Fails if accuracy < 0.85)
         run: python check_threshold.py
 
       - name: Containerize
-        # Run Mock Build and Docker Build
         if: success()
         run: |
           if [ -f model_info.txt ]; then
