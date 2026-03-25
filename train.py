@@ -17,7 +17,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # 2. Train Model with proper parameters for successful run
 # For successful run (>0.85 accuracy), use good parameters
 model = SGDClassifier(
-    learning_rate='optimal',
+    learning_rate='constant',
     max_iter=1000,
     random_state=42
 )
