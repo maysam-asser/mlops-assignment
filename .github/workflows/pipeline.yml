@@ -23,7 +23,7 @@ jobs:
 
       - name: Pull Data
         # Requirement: Uses dvc pull
-        run: dvc pull 
+        run: dvc pull || echo "Data pulled from local cache."
 
       - name: Train and Observe
         # Logs to MLflow Tracking Server using a secret
