@@ -41,7 +41,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # Note: To "fail" the test, you can set max_iter=1 or a very bad learning rate.
 model = SGDClassifier(
     learning_rate='constant', 
-    eta0=0.0001, 
+    eta0=0.01, 
   
 )
 model.fit(X_train, y_train)
