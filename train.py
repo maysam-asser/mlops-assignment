@@ -2,24 +2,21 @@ import pandas as pd
 from sklearn.linear_model import SGDClassifier
 import sys
 
-# We use a lot of data with random values so a high LR fails to converge
-import numpy as np
-np.random.seed(42)
-X_rand = np.random.rand(100, 4)
-y_rand = np.random.randint(0, 2, 100)
+# 1. Load your ACTUAL data.csv
+df = pd.read_csv("data.csv")
+X = df.drop("label", axis=1)
+y = df["label"]
 
-df = pd.DataFrame(X_rand, columns=['f1', 'f2', 'f3', 'f4'])
-y = y_rand
+# 2. SUCCESS PARAMETERS
+lr = 0.0001 
+# Increase max_iter to 1000 so the model can actually learn
+model = SGDClassifier(learning_rate='constant', eta0=lr, max_iter=1000)
+model.fit(X, y)
+accuracy = model.score(X, y)
 
-# SET TO 100.0 - This will definitely fail now
-lr = 0.001
-
-model = SGDClassifier(learning_rate='constant', eta0=lr, max_iter=1)
-model.fit(df, y)
-accuracy = model.score(df, y)
-
+# 3. Save results
 with open("model_info.txt", "w") as f:
-    f.write("run_id_failure_test")
+    f.write("run_id_success")
 
 with open("accuracy_result.txt", "w") as f:
     f.write(str(accuracy))
