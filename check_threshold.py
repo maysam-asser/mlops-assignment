@@ -13,10 +13,10 @@ def check():
     print(f"Run {run_id} | Accuracy: {accuracy}")
 
     if accuracy >= 0.85:
-        print("✅ Threshold Passed.")
+        print(" Threshold Passed.")
         sys.exit(0)
     else:
-        print("❌ Threshold Failed.")
+        print("Threshold Failed.")
         sys.exit(1)
 
 if __name__ == "__main__":
