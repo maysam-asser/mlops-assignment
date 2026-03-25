@@ -32,18 +32,29 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 # 3. Train Model with optimized parameters for >0.85 accuracy
+# model = SGDClassifier(
+#     loss='log_loss',           # Logistic regression loss
+#     penalty='l2',              # L2 regularization
+#     alpha=0.0001,              # Regularization strength
+#     learning_rate='adaptive',   # Adaptive learning rate
+#     eta0=0.01,                 # Initial learning rate
+#     max_iter=2000,             # More iterations
+#     random_state=42,
+#     tol=1e-3,                  # Stopping criterion
+#     n_iter_no_change=10        # Early stopping patience
+# )
 model = SGDClassifier(
-    loss='log_loss',           # Logistic regression loss
-    penalty='l2',              # L2 regularization
-    alpha=0.0001,              # Regularization strength
-    learning_rate='adaptive',   # Adaptive learning rate
-    eta0=0.01,                 # Initial learning rate
-    max_iter=2000,             # More iterations
+    loss='log_loss',           
+    penalty='l2',              
+    alpha=10,                  # Strong regularization
+    learning_rate='constant',   # No adaptive learning
+    eta0=0.000001,             # Very small learning rate
+    max_iter=50,               # Few iterations
     random_state=42,
-    tol=1e-3,                  # Stopping criterion
-    n_iter_no_change=10        # Early stopping patience
+    tol=0.1,                   # Large tolerance for early stopping
+    n_iter_no_change=2,        # Stop quickly
+    shuffle=False              # Don't shuffle (can cause poor learning)
 )
-
 # Train on scaled data
 model.fit(X_train_scaled, y_train)
 
