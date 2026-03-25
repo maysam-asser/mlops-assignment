@@ -50,6 +50,16 @@ jobs:
           # List pulled files for debugging
           echo "Files after dvc pull:"
           ls -la
+      - name: Debug DVC Setup
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "DVC files:"
+          find . -name "*.dvc" -type f
+          echo "DVC config:"
+          cat .dvc/config 2>/dev/null || echo "No .dvc/config found"
+          echo "DVC remote list:"
+          dvc remote list    
 
       - name: Train and Observe
         run: python train.py
