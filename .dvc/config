@@ -1,0 +1,7 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = https://dagshub.com/maysam-asser/mlops-assignment.dvc
+    auth = basic
+    user = maysam-asser
+    password = c11e9af93f1cddc98e6c32985a4abfcdc1ca1f08
