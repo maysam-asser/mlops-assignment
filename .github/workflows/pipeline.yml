@@ -1,71 +1,66 @@
-name: ML Pipeline
-
+name: MLOps Pipeline
 on: 
   push:
     branches-ignore:
-      - main 
+      - main  # Runs on all branches except main
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-
-    env:
-      MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
-
     steps:
-      - name: Checkout repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt 
           pip install dvc
 
-      - name: Pull data with DVC
-        run: |
-          dvc pull
+      - name: Pull Data
+        # Requirement: Uses dvc pull
+        run: dvc pull 
 
-      - name: Train model
+      - name: Train and Observe
+        # Logs to MLflow Tracking Server using a secret
         run: python train.py
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
 
-      - name: Upload artifact
+      - name: Persist Artifacts
+        # Save model_info.txt and accuracy_result.txt
         uses: actions/upload-artifact@v4
         with:
-          name: model_info
-          path: model_info.txt
+          name: model_metadata
+          path: |
+            model_info.txt
+            accuracy_result.txt
 
   deploy:
     needs: validate
     runs-on: ubuntu-latest
-
-    env:
-      MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-
     steps:
-      - name: Checkout repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-
-      - name: Install dependencies
-        run: pip install mlflow
-
-      - name: Download artifact
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: model_info
+          name: model_metadata
 
-      - name: Check accuracy threshold
+      - name: Check Threshold Logic
+        # Run check_threshold.py (Fails if accuracy < 0.85)
         run: python check_threshold.py
 
-      - name: Mock Docker Build
+      - name: Containerize
+        # Run Mock Build and Docker Build
+        if: success()
         run: |
-          echo "Building Docker image for Run ID: $(cat model_info.txt)"
+          RUN_ID=$(cat model_info.txt)
+          echo "Building Docker image for Run ID: $RUN_ID"
+          docker build --build-arg RUN_ID=$RUN_ID -t ml-model-service:latest .

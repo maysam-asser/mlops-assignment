@@ -16,12 +16,22 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # 2. Train Model with proper parameters for successful run
 # For successful run (>0.85 accuracy), use good parameters
+# This will likely result in accuracy around 0.30 - 0.60
 model = SGDClassifier(
     learning_rate='constant',
+    eta0=100.0,        # Way too high: the model "explodes"
     max_iter=1000,
     random_state=42
 )
 
+
+# # This will likely result in accuracy > 0.90
+# model = SGDClassifier(
+#     learning_rate='constant',
+#     eta0=0.01,         # A standard, stable step size
+#     max_iter=1000,
+#     random_state=42
+# )
 model.fit(X_train, y_train)
 
 # 3. Calculate Accuracy
