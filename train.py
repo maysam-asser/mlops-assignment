@@ -12,7 +12,7 @@ df = pd.DataFrame(X_rand, columns=['f1', 'f2', 'f3', 'f4'])
 y = y_rand
 
 # SET TO 100.0 - This will definitely fail now
-lr = 100.0 
+lr = 0.001
 
 model = SGDClassifier(learning_rate='constant', eta0=lr, max_iter=1)
 model.fit(df, y)
