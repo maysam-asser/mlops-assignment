@@ -4,6 +4,9 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
 import mlflow
 import os
+import dagshub
+
+dagshub.init(repo_owner='maysam-asser', repo_name='mlops-assignment', mlflow=True)
 
 # 1. Load Iris Data
 iris = load_iris()
@@ -24,14 +27,6 @@ model.fit(X_train, y_train)
 # 3. Calculate Accuracy
 accuracy = model.score(X_test, y_test)
 print(f"Training Complete. Accuracy: {accuracy}")
-
-# 4. MLflow Tracking
-mlflow_tracking_uri = os.environ.get('MLFLOW_TRACKING_URI')
-
-# Set tracking URI if available
-if mlflow_tracking_uri:
-    mlflow.set_tracking_uri(mlflow_tracking_uri)
-    print(f"MLflow tracking URI set to: {mlflow_tracking_uri}")
 
 # Start an MLflow run (this works even if tracking URI is not set - uses local files)
 with mlflow.start_run() as run:

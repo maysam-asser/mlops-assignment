@@ -29,6 +29,7 @@ jobs:
         run: python train.py
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_PAT }}
 
       - name: Persist Artifacts
         # Save model_info.txt and accuracy_result.txt
