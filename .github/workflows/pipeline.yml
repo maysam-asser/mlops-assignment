@@ -1,5 +1,8 @@
 name: MLOps Pipeline
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - main  # This tells GitHub: "Run on every push EXCEPT to the main branch"
 
 jobs:
   validate:
@@ -10,7 +13,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install Dependencies
-        run: pip install pandas scikit-learn numpy
+        run: pip install pandas scikit-learn numpy dvc
       - name: Train Model
         run: python train.py
       - name: Upload Artifacts
@@ -30,3 +33,8 @@ jobs:
           name: pipeline_data
       - name: Check Threshold
         run: python check_threshold.py
+      - name: Mock Build
+        run: |
+          RID=$(cat model_info.txt)
+          echo "Building Docker image for Run ID: $RID"
+          # Optional: add your docker build command here
