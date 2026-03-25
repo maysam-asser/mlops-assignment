@@ -1,23 +1,18 @@
-import mlflow
 import sys
 
-def check():
-    with open("model_info.txt", "r") as f:
-        run_id = f.read().strip()
+try:
+    with open("accuracy_result.txt", "r") as f:
+        accuracy = float(f.read().strip())
+except FileNotFoundError:
+    print("Accuracy file not found!")
+    sys.exit(1)
 
-    mlflow.set_tracking_uri("https://dagshub.com/maysam-asser/mlops-assignment.mlflow")
-    client = mlflow.tracking.MlflowClient()
-    run = client.get_run(run_id)
-    accuracy = run.data.metrics.get("accuracy", 0)
+threshold = 0.85
+print(f"Checking Accuracy: {accuracy} against Threshold: {threshold}")
 
-    print(f"Run {run_id} | Accuracy: {accuracy}")
-
-    if accuracy >= 0.85:
-        print(" Threshold Passed.")
-        sys.exit(0)
-    else:
-        print("Threshold Failed.")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    check()
+if accuracy >= threshold:
+    print(" SUCCESS: Accuracy meets requirement.")
+    sys.exit(0)
+else:
+    print(" FAILED: Accuracy too low.")
+    sys.exit(1)
