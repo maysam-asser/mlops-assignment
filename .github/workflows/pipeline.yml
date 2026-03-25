@@ -18,7 +18,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install pandas scikit-learn numpy dvc mlflow
+          pip install -r requirements.txt 
+          pip install dvc
 
       - name: Pull Data
         # Requirement: Uses dvc pull
