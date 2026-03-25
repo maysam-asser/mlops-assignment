@@ -17,9 +17,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pipeline_data
-          path: |
-            model_info.txt
-            accuracy_result.txt
+          path: "*.txt"
 
   deploy:
     needs: validate
@@ -33,4 +31,4 @@ jobs:
       - name: Check Threshold
         run: python check_threshold.py
       - name: Mock Deploy
-        run: echo "Deploying model from Run ID"
+        run: echo "Finalizing Deployment"
