@@ -2,7 +2,7 @@ name: MLOps Pipeline
 on: 
   push:
     branches-ignore:
-      - main  # Runs on all branches except main
+      - main  
 
 jobs:
   validate:
@@ -22,7 +22,6 @@ jobs:
           pip install dvc
 
       - name: Pull Data
-        # Requirement: Uses dvc pull
         run: dvc pull ||echo "f"
 
       - name: Train and Observe
@@ -54,11 +53,10 @@ jobs:
           name: model_metadata
 
       - name: Check Threshold Logic
-        # Run check_threshold.py (Fails if accuracy < 0.85)
+        # Run check_threshold.py Fails if accuracy < 0.85
         run: python check_threshold.py
 
       - name: Containerize
-        # Run Mock Build and Docker Build
         if: success()
         run: |
           RUN_ID=$(cat model_info.txt)
