@@ -13,9 +13,8 @@ RUN if [ -f requirements.txt ]; then pip install -r requirements.txt; else echo 
 # Copy the check_threshold script for verification
 COPY check_threshold.py .
 
-# Simulate model download
 RUN echo "Fetching model artifacts for Run ID: ${MLFLOW_RUN_ID}" > /app/load_report.txt
 RUN echo "Model download simulation complete" >> /app/load_report.txt
 
-# Command to run when container starts
+# run when container starts
 CMD ["python", "-c", "print('Deployment successful for Run: ' + '$MLFLOW_RUN_ID'); print('Model is ready for serving')"]
